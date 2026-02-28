@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="card">
+<h2>Dashboard</h2>
+
+<h3>Total Spending: ₹ {{ total }}</h3>
+
+{% if budget_alert %}
+<p style="color:red;">{{ budget_alert }}</p>
+{% endif %}
+
+<form method="POST">
+    <input type="text" name="category" placeholder="Category" required>
+    <input type="number" name="amount" placeholder="Amount" required>
+    <button type="submit">Add Expense</button>
+</form>
+
+<h3>Expense History</h3>
+<table border="1" width="100%">
+<tr>
+<th>Category</th>
+<th>Amount</th>
+<th>Action</th>
+</tr>
+
+{% for expense in expenses %}
+<tr>
+<td>{{ expense[2] }}</td>
+<td>₹ {{ expense[3] }}</td>
+<td><a href="/delete/{{ expense[0] }}">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+
+<h3>Category Distribution</h3>
+<canvas id="pieChart"></canvas>
+
+<h3>Monthly Comparison</h3>
+<canvas id="barChart"></canvas>
+
+<h3>AI Insight</h3>
+<p>{{ insight }}</p>
+
+<a href="/download_pdf"><button>Download PDF</button></a>
+<a href="/logout"><button>Logout</button></a>
+
+</div>
+
+<script>
+const categoryData = JSON.parse('{{ category_data | tojson | safe }}');
+const monthlyData = JSON.parse('{{ monthly_data | tojson | safe }}');
+
+// Pie Chart
+new Chart(document.getElementById("pieChart"), {
+    type: "pie",
+    data: {
+        labels: Object.keys(categoryData),
+        datasets: [{
+            data: Object.values(categoryData)
+        }]
+    }
+});
+
+// Bar Chart
+new Chart(document.getElementById("barChart"), {
+    type: "bar",
+    data: {
+        labels: Object.keys(monthlyData),
+        datasets: [{
+            data: Object.values(monthlyData)
+        }]
+    }
+});
+</script>
+</body>
+</html>
